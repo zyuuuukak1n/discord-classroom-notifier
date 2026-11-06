@@ -1,0 +1,46 @@
+# Git & Version Control
+.git/
+.gitignore
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+
+# Python Cache & Build Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Testing & Linting
+tests/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local Secrets & Runtime Data
+.env
+.env.*
+credentials.json
+token.json
+token.pickle
+data/
+logs/
+*.db
+*.sqlite3
+*.lock
+class_info.txt
+
+# Session & Local Operation Guides
+SESSION_HISTORY.md
+DEPLOYMENT_GUIDE_LOCAL.md
+
+# Documentation & Design Assets
+assets/
+systemd/
+README.md
+DEPLOYMENT_GUIDE.md

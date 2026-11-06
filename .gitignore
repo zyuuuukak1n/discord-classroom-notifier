@@ -45,6 +45,12 @@ notifier.lock
 *.lock
 logs/
 *.log
+class_info.txt
+config/courses.json
+
+# Local Operations & Private Session Logs
+SESSION_HISTORY.md
+DEPLOYMENT_GUIDE_LOCAL.md
 
 # IDE & OS
 .idea/

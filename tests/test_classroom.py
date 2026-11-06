@@ -124,3 +124,21 @@ class TestClassroomClient:
         assert len(courses) == 1
         assert mock_req.execute.call_count == 2
         mock_sleep.assert_called_with(1.0)
+
+    def test_format_due_date_jst_conversion(self):
+        """Test Classroom UTC due date/time conversion into JST."""
+        creds = MagicMock()
+        client = ClassroomClient(creds)
+
+        # 1. UTC 14:59 on Oct 15 -> JST 23:59 on Oct 15
+        due_date = {"year": 2026, "month": 10, "day": 15}
+        due_time = {"hours": 14, "minutes": 59}
+        formatted = client._format_due_date(due_date, due_time)
+        assert formatted == "2026/10/15 23:59 (JST)"
+
+        # 2. Date only -> 23:59 (JST)
+        formatted_date_only = client._format_due_date(due_date, None)
+        assert formatted_date_only == "2026/10/15 23:59 (JST)"
+
+        # 3. None due date
+        assert client._format_due_date(None, None) is None

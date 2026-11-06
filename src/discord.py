@@ -100,8 +100,13 @@ def create_embed_for_item(item: ClassroomItem) -> dict[str, Any]:
     embed["fields"] = fields
 
     # フッター（作成・更新日時）
-    footer_text = f"Google Classroom Notifier • {item.update_time or item.creation_time}"
+    footer_text = f"Google Classroom Notifier • {item.course_name}"
     embed["footer"] = {"text": truncate_text(footer_text, 100)}
+
+    # Discord タイムスタンプ（受信者のクライアント時刻に自動同期）
+    iso_time = item.update_time or item.creation_time
+    if iso_time:
+        embed["timestamp"] = iso_time
 
     return embed
 

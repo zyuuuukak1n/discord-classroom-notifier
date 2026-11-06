@@ -46,6 +46,8 @@ class TestDiscordFormatting:
         assert "Important Exam Notice" in embed["title"]
         assert embed["url"] == "https://classroom.google.com/c/123/m/456"
         assert "Midterm exam will be held next Tuesday." in embed["description"]
+        assert embed["timestamp"] == "2026-10-01T12:00:00Z"
+        assert "Google Classroom Notifier • Machine Learning" in embed["footer"]["text"]
 
         field_names = [f["name"] for f in embed["fields"]]
         assert "クラス名" in field_names

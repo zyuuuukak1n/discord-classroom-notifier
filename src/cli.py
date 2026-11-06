@@ -63,9 +63,7 @@ def cmd_list_courses(args):
             print(f"{name:<35} | {cid:<20} | {section}")
         print("=" * 80)
         print(f"合計: {len(courses)} 件のコース\n")
-        print(
-            "[INFO] これらのコースIDを config/courses.json に記載して個別通知設定が行えます。"
-        )
+        print("[INFO] これらのコースIDを config/courses.json に記載して個別通知設定が行えます。")
     except AuthError as e:
         print(f"[ERROR] 認証エラー: {e}", file=sys.stderr)
         print("先に 'python -m src.cli auth' を実行してください。", file=sys.stderr)

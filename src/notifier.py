@@ -1,6 +1,8 @@
 """Main notification orchestrator coordinating Google Classroom and Discord."""
 
 import logging
+import signal
+import threading
 import time
 
 from src.auth import get_credentials
@@ -184,15 +186,34 @@ class NotifierService:
         return sent_count
 
     def run_daemon(self) -> None:
-        """Run continuous polling loop in daemon mode."""
+        """Run continuous polling loop in daemon mode with graceful shutdown support."""
         interval = self.config.check_interval_seconds
         logger.info(f"Starting notifier daemon with interval of {interval} seconds.")
+
+        stop_event = threading.Event()
+
+        def _handle_signal(signum, _frame):
+            sig_name = signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
+            logger.info(f"Received signal {sig_name}. Initiating graceful shutdown...")
+            stop_event.set()
+
+        # SIGTERM (Docker stop) and SIGINT (Ctrl+C)
+        signal.signal(signal.SIGINT, _handle_signal)
+        if hasattr(signal, "SIGTERM"):
+            signal.signal(signal.SIGTERM, _handle_signal)
+
         try:
-            while True:
+            while not stop_event.is_set():
                 start_time = time.time()
                 self.run_once()
+
                 elapsed = time.time() - start_time
                 sleep_time = max(5.0, interval - elapsed)
-                time.sleep(sleep_time)
+
+                # Wait for the next cycle or immediate termination if signal received
+                if stop_event.wait(timeout=sleep_time):
+                    break
         except (KeyboardInterrupt, SystemExit):
-            logger.info("Notifier daemon received shutdown signal. Terminating gracefully.")
+            pass
+        finally:
+            logger.info("Notifier daemon terminated gracefully.")

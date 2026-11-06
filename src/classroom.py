@@ -316,7 +316,11 @@ class ClassroomClient:
     def _format_due_date(
         self, due_date: dict[str, int] | None, due_time: dict[str, int] | None
     ) -> str | None:
-        """Format Classroom due date and time into human readable JST/local format."""
+        """Format Classroom due date and time into human readable JST (UTC+9) format.
+
+        Classroom API returns dueDate and dueTime in UTC.
+        This converts UTC into JST for accurate local deadline display.
+        """
         if not due_date:
             return None
         year = due_date.get("year", 2026)
@@ -324,11 +328,18 @@ class ClassroomClient:
         day = due_date.get("day", 1)
 
         if due_time:
+            from datetime import datetime, timedelta, timezone
+
             hours = due_time.get("hours", 0)
             minutes = due_time.get("minutes", 0)
-            # Classroom API dueTime is in UTC unless specified otherwise
-            return f"{year:04d}/{month:02d}/{day:02d} {hours:02d}:{minutes:02d} (UTC)"
-        return f"{year:04d}/{month:02d}/{day:02d} 23:59"
+            try:
+                dt_utc = datetime(year, month, day, hours, minutes, tzinfo=timezone.utc)
+                jst = timezone(timedelta(hours=9))
+                dt_jst = dt_utc.astimezone(jst)
+                return dt_jst.strftime("%Y/%m/%d %H:%M (JST)")
+            except (ValueError, OverflowError):
+                return f"{year:04d}/{month:02d}/{day:02d} {hours:02d}:{minutes:02d} (UTC)"
+        return f"{year:04d}/{month:02d}/{day:02d} 23:59 (JST)"
 
     def _execute_with_retry(self, request_obj, max_retries: int = 3) -> dict[str, Any]:
         """Execute Google API request with exponential backoff on transient errors (5xx, 429)."""
